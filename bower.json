@@ -1,8 +1,8 @@
 {
-  "name": "ngDraggable",
+  "name": "edools-ng-draggable",
   "main": "ngDraggable.js",
-  "version": "0.1.8",
-  "homepage": "https://github.com/fatlinesofcode/ngDraggable",
+  "version": "0.1.9",
+  "homepage": "https://github.com/Edools/ngDraggable",
   "ignore": [
     "**/.*",
     "node_modules",
