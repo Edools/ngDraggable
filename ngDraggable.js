@@ -17,7 +17,7 @@ angular.module("ngDraggable", [])
                 restrict: 'A',
                 link: function (scope, element, attrs) {
                     scope.value = attrs.ngDrag;
-                    var offset,_centerAnchor=false,_mx,_my,_tx,_ty,_mrx,_mry;
+                    var offset,_centerAnchor=false,_mx,_my,_tx,_ty,_mrx,_mry,_omy,_sdy = 0;
                     var _hasTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
                     var _pressEvents = 'touchstart mousedown';
                     var _moveEvents = 'touchmove mousemove';
@@ -103,6 +103,8 @@ angular.module("ngDraggable", [])
                             return;
                         }
 
+                        _omy = ngDraggable.inputEvent(evt).pageX;
+
                         if(_hasTouch){
                             cancelPress();
                             _pressTimer = setTimeout(function(){
@@ -175,14 +177,36 @@ angular.module("ngDraggable", [])
                         _my = ngDraggable.inputEvent(evt).pageY;//ngDraggable.getEventProp(evt, 'pageY');
 
                         if (_centerAnchor) {
-                            _tx = _mx - element.centerX - _dragOffset.left;
-                            _ty = _my - element.centerY - _dragOffset.top;
+                            elemX = element.centerX;
+                            elemY = element.centerY;
                         } else {
-                            _tx = _mx - _mrx - _dragOffset.left;
-                            _ty = _my - _mry - _dragOffset.top;
+                            elemX = _mrx;
+                            elemY = _mry;
                         }
+                        _tx = _mx - elemX - _dragOffset.left;
+                        _ty = _my - elemY - _dragOffset.top;
+
+                        _ty = _ty - _sdy;
+
+                        mouseInnerScrollY = _my - window.scrollY
+                        windowMouseDiff = window.innerHeight - mouseInnerScrollY
+
+                        mouseDirectionDiff = _my - _omy;
+                        mouseDirectionUp = _my > _omy;
 
                         moveElement(_tx, _ty);
+
+                        difScrollTam = 10;
+
+                        if (windowMouseDiff < elemY && mouseDirectionUp && window.scrollY < document.body.scrollHeight) {
+                          _sdy += difScrollTam;
+                          window.scrollTo(window.scrollX, window.scrollY + difScrollTam);
+                        } else if (mouseInnerScrollY < elemY && window.scrollY > 0) {
+                          _sdy -= difScrollTam;
+                          window.scrollTo(window.scrollX, window.scrollY - difScrollTam);
+                        }
+
+                        _omy = _my;
 
                         $rootScope.$broadcast('draggable:move', { x: _mx, y: _my, tx: _tx, ty: _ty, event: evt, element: element, data: _data, uid: _myid });
                     };
